@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-green: #00ff66;
+  --color-brand-green-dim: #00ff6622;
+  --color-brand-blue: #00e5ff;
+  --color-brand-blue-dim: #00e5ff22;
+  
+  --color-bg-dark: #07090b;
+  --color-bg-panel: #111418;
+  --color-bg-panel-hover: #1a1e24;
+  --color-border-dark: #232830;
+  
+  --color-text-main: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  
+  --font-sans: var(--font-sans), "Atkinson Hyperlegible", sans-serif;
+  --font-mono: var(--font-mono), monospace;
+}
+
+:root {
+  --background: var(--color-bg-dark);
+  --foreground: var(--color-text-main);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Improve paragraph spacing for content */
+p {
+  margin-bottom: 1.5rem;
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Utility classes for modern gaming feel */
+.glass-panel {
+  background: rgba(17, 20, 24, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-dark);
+}
+
+.glow-green {
+  box-shadow: 0 0 15px var(--color-brand-green-dim);
+}
+
+.glow-blue {
+  box-shadow: 0 0 15px var(--color-brand-blue-dim);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, var(--color-brand-green), var(--color-brand-blue));
+  -webkit-background-clip: text;
+  color: transparent;
+}
