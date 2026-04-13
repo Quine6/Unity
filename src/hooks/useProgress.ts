@@ -41,7 +41,8 @@ export function useProgress() {
 
     if (stored) {
       try {
-        setAppState(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setAppState({ ...parsed, activeProfileId: null });
       } catch (e) {
         console.error("Failed to parse progress", e);
         setAppState({ activeProfileId: null, profiles: [] });

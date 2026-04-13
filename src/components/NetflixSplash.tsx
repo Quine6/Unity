@@ -70,7 +70,7 @@ export default function NetflixSplash({ onFinish }: { onFinish: () => void }) {
           <img 
             src="/logo.png" 
             alt="Nexus Game Lab Logo" 
-            className="w-64 h-64 object-contain shadow-[0_0_50px_rgba(0,229,255,0.3)] rounded-full animate-pulse-glow"
+            className="w-64 h-64 object-contain shadow-[0_0_50px_rgba(0,229,255,0.3)] rounded-full animate-pulse-glow opacity-0"
           />
           
           {/* Scanline effect */}

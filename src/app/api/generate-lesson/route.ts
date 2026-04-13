@@ -36,9 +36,10 @@ INSTRUCCIONES DE DISEÑO VISUAL (ESTRICTAS):
 1. **EXTENSIÓN ALTA**: Explica de forma EXHAUSTIVA y profundamente clara.
 2. **DISEÑO VISUAL**: El contenido DEBE ser visualmente atractivo. Usa MUCHOS espacios entre párrafos, títulos claros, y variedad de elementos Markdown. 
 3. **ELEMENTOS OBLIGATORIOS**: Incluye al menos una tabla técnica, una lista de "Pro tips" y, si es posible, describe un "Diagrama de flujo lógico" o "Esquema" del proceso.
-4. **CÓDIGO**: Incluye bloques de código (con \`\`\`csharp) comentados línea a línea.
-5. **ESTILO**: Usa negritas para conceptos clave. No "apelotones" el texto.
-6. **SIN OTRAS INTERACCIONES**: Empieza directamente por el contenido en Markdown.
+4. **IMÁGENES PROHIBIDAS**: NUNCA generes enlaces a imágenes externas del tipo ![alt](url) ya que suelen estar rotos. En su lugar, usa Emojis técnicos (⚙️, 💻, 🚀, 🎯) para dar apoyo visual.
+5. **CÓDIGO**: Incluye bloques de código (con \`\`\`csharp) comentados línea a línea.
+6. **ESTILO**: Usa negritas para conceptos clave. No "apelotones" el texto.
+7. **SIN OTRAS INTERACCIONES**: Empieza directamente por el contenido en Markdown.
     `;
 
     const chatSession = model.startChat({
