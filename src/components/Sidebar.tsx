@@ -18,6 +18,8 @@ export default function Sidebar({ progress, onSelectSubmodule, onLogout }: Sideb
   };
 
   const isCompleted = (subId: string) => progress.completedSubmodules.includes(subId);
+  const totalTopics = courseData.reduce((acc, mod) => acc + mod.submodules.length, 0);
+  const completionPercentage = Math.round((progress.completedSubmodules.length / totalTopics) * 100);
 
   return (
     <div className="w-64 md:w-80 h-screen shrink-0 bg-[var(--color-bg-panel)] border-r border-[var(--color-border-dark)] overflow-y-auto flex flex-col">
@@ -28,18 +30,18 @@ export default function Sidebar({ progress, onSelectSubmodule, onLogout }: Sideb
             <div className="flex justify-between items-center px-0.5">
               <span className="font-bold tracking-widest uppercase">Progreso Global</span>
               <span className="text-[var(--color-brand-green)] font-black">
-                {Math.round((progress.completedSubmodules.length / 45) * 100)}%
+                {completionPercentage}%
               </span>
             </div>
             <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
               <div 
                 className="h-full bg-gradient-to-r from-[var(--color-brand-blue)] to-[var(--color-brand-green)] transition-all duration-1000 ease-out"
-                style={{ width: `${(progress.completedSubmodules.length / 45) * 100}%` }}
+                style={{ width: `${completionPercentage}%` }}
               />
             </div>
             <div className="flex justify-between text-[8px] opacity-60 italic">
               <span>{progress.name}</span>
-              <span>{progress.completedSubmodules.length} / 45 temas</span>
+              <span>{progress.completedSubmodules.length} / {totalTopics} temas</span>
             </div>
           </div>
           <button onClick={onLogout} className="text-left w-max text-[var(--color-text-muted)] hover:text-white underline text-[10px] mt-2 transition-colors opacity-40 hover:opacity-100">
