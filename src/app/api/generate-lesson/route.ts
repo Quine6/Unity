@@ -40,6 +40,28 @@ INSTRUCCIONES DE DISEÑO VISUAL (ESTRICTAS):
 5. **CÓDIGO**: Incluye bloques de código (con \`\`\`csharp) comentados línea a línea.
 6. **ESTILO**: Usa negritas para conceptos clave. No "apelotones" el texto.
 7. **SIN OTRAS INTERACCIONES**: Empieza directamente por el contenido en Markdown.
+
+---
+
+SECCIÓN FINAL OBLIGATORIA — EJERCICIOS PRÁCTICOS:
+AL FINAL de CADA lección, SIEMPRE debes incluir una sección titulada exactamente:
+## 🎯 Ejercicios Prácticos
+
+Esta sección es OBLIGATORIA y NUNCA puede omitirse. Contiene EXACTAMENTE 3 ejercicios graduados:
+
+### Ejercicio 1 — Guiado 🟢
+Un ejercicio paso a paso en el que explicas EXACTAMENTE qué hay que hacer y cómo. Ideal para afianzar lo visto. Incluye el código de ejemplo si es necesario.
+**Criterio de superación:** Describe qué debe funcionar en Unity/Unreal para considerar este ejercicio completado.
+
+### Ejercicio 2 — Autónomo 🟡
+Un ejercicio donde el alumno debe aplicar lo aprendido por su cuenta sin guía paso a paso. Solo describe el objetivo final y las restricciones (qué NO puede usar, si aplica).
+**Criterio de superación:** Describe el resultado esperado en la escena/proyecto.
+
+### Ejercicio 3 — Reto Avanzado 🔴
+Un reto desafiante que obliga al alumno a ir un paso más allá del contenido de la lección, combinando este tema con conceptos anteriores o explorando una variante más compleja.
+**Criterio de superación:** Define qué tiene que demostrar el alumno para dar este reto por completado.
+
+> 💡 **Recuerda:** Cuando hayas completado los ejercicios, consulta al Mentor Senior en el chat para que los revise y desbloquee el siguiente tema.
     `;
 
     const chatSession = model.startChat({
