@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { courseData } from "../data/courseContent";
+import { db } from "../lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export interface UserProgress {
-  id: string;
+  id: string; // The secret code
   name: string;
   age: number;
   currentModuleId: string;
   currentSubmoduleId: string;
   completedSubmodules: string[];
-  lessonsCache: Record<string, string>; // Maps submodule ID to Markdown lesson text
+  lessonsCache: Record<string, string>;
 }
 
 export interface AppState {
@@ -20,8 +22,18 @@ export interface AppState {
 
 const STORAGE_KEY = "unity_lms_appstate";
 
+// Generates a short, readable random code like: ABC-123
+export const generateSecretCode = () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed similar looking chars
+  let code = "";
+  for(let i=0; i<3; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  code += "-";
+  for(let i=0; i<3; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+};
+
 const createDefaultProfile = (name: string, age: number): UserProgress => ({
-  id: Math.random().toString(36).substring(2, 9),
+  id: generateSecretCode(),
   name,
   age,
   currentModuleId: courseData[0].id,
@@ -34,40 +46,68 @@ export function useProgress() {
   const [appState, setAppState] = useState<AppState | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    // Load from local storage
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const oldStored = localStorage.getItem("unity_lms_progress"); // The old key used before multi-profile
-
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setAppState({ ...parsed, activeProfileId: null });
-      } catch (e) {
-        console.error("Failed to parse progress", e);
-        setAppState({ activeProfileId: null, profiles: [] });
-      }
-    } else if (oldStored) { // MIGRATION FROM OLD V1 DATA
-      try {
-        const parsedOld = JSON.parse(oldStored);
-        if (parsedOld && typeof parsedOld.name === "string") {
-            const migratedProfile = {
-                ...parsedOld,
-                id: Math.random().toString(36).substring(2, 9),
-                lessonsCache: {}
-            };
-            setAppState({
-                activeProfileId: null, // Force to select screen to see migration
-                profiles: [migratedProfile],
-            });
-        }
-      } catch(e) {
-        setAppState({ activeProfileId: null, profiles: [] });
-      }
-    } else {
-      setAppState({ activeProfileId: null, profiles: [] });
+  // Sync to Firebase whenever progress updates
+  const syncToFirebase = async (profile: UserProgress) => {
+    try {
+      await setDoc(doc(db, "users", profile.id), profile);
+      console.log(`Progreso guardado en la nube para ${profile.id}`);
+    } catch (e) {
+      console.error("Error sincronizando con Firebase", e);
     }
-    setIsLoaded(true);
+  };
+
+  // Pull from Firebase for a specific ID
+  const fetchFromFirebase = async (id: string): Promise<UserProgress | null> => {
+    try {
+      const docRef = doc(db, "users", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data() as UserProgress;
+      }
+    } catch (e) {
+      console.error("Error obteniendo datos de Firebase", e);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const loadState = async () => {
+      // Load from local storage
+      const stored = localStorage.getItem(STORAGE_KEY);
+      let localState: AppState | null = null;
+      
+      if (stored) {
+        try {
+          localState = JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to parse progress", e);
+        }
+      } 
+      
+      if (localState) {
+        setAppState(localState);
+        // Silently sync the active profile from Firebase in background if one is active
+        if (localState.activeProfileId) {
+           const cloudProfile = await fetchFromFirebase(localState.activeProfileId);
+           if (cloudProfile) {
+              // Update local state with fresh cloud data
+              const mapped = localState.profiles.map(p => p.id === cloudProfile.id ? cloudProfile : p);
+              // Handle case where profile exists locally but has new data
+              if (!mapped.find(x => x.id === cloudProfile.id)) {
+                mapped.push(cloudProfile);
+              }
+              const newState = { ...localState, profiles: mapped };
+              setAppState(newState);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+           }
+        }
+      } else {
+        setAppState({ activeProfileId: null, profiles: [] });
+      }
+      setIsLoaded(true);
+    };
+
+    loadState();
   }, []);
 
   const saveAppState = (newState: AppState) => {
@@ -81,16 +121,49 @@ export function useProgress() {
     if (!appState) return;
     const newProfiles = appState.profiles.map(p => p.id === updatedProfile.id ? updatedProfile : p);
     saveAppState({ ...appState, profiles: newProfiles });
+    syncToFirebase(updatedProfile); // Subir a la nube
   };
 
-  const createProfile = (name: string, age: number) => {
+  const createProfile = async (name: string, age: number) => {
     if (!appState) return;
     const newProfile = createDefaultProfile(name, age);
+    
+    // Save locally
     saveAppState({
       ...appState,
       profiles: [...appState.profiles, newProfile],
       activeProfileId: newProfile.id
     });
+
+    // Save initial state to cloud
+    await syncToFirebase(newProfile);
+    return newProfile;
+  };
+
+  const loginWithSecretCode = async (code: string) => {
+    if (!appState) return false;
+    const cCode = code.toUpperCase().trim();
+    
+    // Check local first
+    const existingLocal = appState.profiles.find(p => p.id === cCode);
+    if (existingLocal) {
+       switchProfile(cCode);
+       return true;
+    }
+
+    // Check Cloud
+    const cloudProfile = await fetchFromFirebase(cCode);
+    if (cloudProfile) {
+       // Save it locally and switch to it
+       saveAppState({
+         ...appState,
+         profiles: [...appState.profiles, cloudProfile],
+         activeProfileId: cloudProfile.id
+       });
+       return true;
+    }
+    
+    return false; // Code not found
   };
 
   const switchProfile = (id: string | null) => {
@@ -110,12 +183,12 @@ export function useProgress() {
 
   const cacheLesson = (submoduleId: string, markdownContent: string) => {
     if (!activeProfile) return;
+    let cacheUpdates = { ...activeProfile.lessonsCache };
+    cacheUpdates[submoduleId] = markdownContent;
+
     const updatedProfile = {
       ...activeProfile,
-      lessonsCache: {
-        ...activeProfile.lessonsCache,
-        [submoduleId]: markdownContent
-      }
+      lessonsCache: cacheUpdates
     };
     saveProgress(updatedProfile);
   };
@@ -144,9 +217,6 @@ export function useProgress() {
       // First submodule of next module
       nextModId = courseData[currentModIdx + 1].id;
       nextSubId = courseData[currentModIdx + 1].submodules[0].id;
-    } else {
-      // Course completed
-      console.log("Course completed!");
     }
 
     saveProgress({
@@ -164,6 +234,7 @@ export function useProgress() {
     saveProgress,
     completeCurrentAndAdvance,
     createProfile,
+    loginWithSecretCode,
     switchProfile,
     deleteProfile,
     cacheLesson,
