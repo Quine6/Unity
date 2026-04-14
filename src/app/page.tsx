@@ -19,6 +19,7 @@ export default function Page() {
     saveProgress, 
     completeCurrentAndAdvance, 
     createProfile,
+    loginWithSecretCode,
     switchProfile,
     deleteProfile,
     cacheLesson,
@@ -47,6 +48,7 @@ export default function Page() {
           onSelectProfile={switchProfile}
           onCreateProfile={createProfile}
           onDeleteProfile={deleteProfile}
+          onLoginCode={loginWithSecretCode}
         />
       </main>
     );
