@@ -96,7 +96,9 @@ export default function Page() {
         <button
           onClick={() => setIsChatOpen(false)}
           title="Cerrar chat"
-          className="absolute top-4 left-0 -translate-x-full z-10 flex items-center gap-1.5 px-3 py-2 rounded-l-xl bg-[#111418] border border-r-0 border-[var(--color-border-dark)] text-[var(--color-text-muted)] hover:text-white text-xs font-medium transition-colors"
+          className={`absolute top-4 left-0 -translate-x-full z-10 flex items-center gap-1.5 px-3 py-2 rounded-l-xl bg-[#111418] border border-r-0 border-[var(--color-border-dark)] text-[var(--color-text-muted)] hover:text-white text-xs font-medium transition-all duration-300 ${
+            isChatOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         >
           <X className="w-3.5 h-3.5" />
           Cerrar
