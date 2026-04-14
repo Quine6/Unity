@@ -5,6 +5,7 @@ import { courseData } from "../data/courseContent";
 import { UserProgress } from "../hooks/useProgress";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { Loader2, Zap } from "lucide-react";
 
 interface MainContentProps {
@@ -92,22 +93,28 @@ export default function MainContent({ currentModuleId, currentSubmoduleId, progr
         )}
 
         {hasContent && (
-          <section className="prose prose-invert prose-lg max-w-none 
+          <section className="lesson-content">
+          <div className="prose prose-invert prose-lg max-w-none
             prose-headings:text-[var(--color-brand-blue)]
             prose-headings:font-black prose-headings:tracking-tighter
-            prose-a:text-[var(--color-brand-green)]
-            prose-p:text-[var(--color-text-main)] prose-p:leading-9 prose-p:mb-10
+            prose-h2:text-2xl prose-h2:border-b prose-h2:border-[var(--color-border-dark)] prose-h2:pb-3
+            prose-h3:text-lg prose-h3:text-[var(--color-brand-green)]
+            prose-a:text-[var(--color-brand-green)] prose-a:no-underline hover:prose-a:underline
+            prose-p:text-[var(--color-text-main)] prose-p:leading-8 prose-p:mb-6
+            prose-li:text-[var(--color-text-main)] prose-li:leading-8
             prose-pre:bg-[#090b0e] prose-pre:border prose-pre:border-[var(--color-border-dark)] prose-pre:shadow-2xl prose-pre:p-6 prose-pre:rounded-2xl
-            prose-code:text-[var(--color-brand-green)] prose-code:bg-[var(--color-bg-panel)] prose-code:px-2 prose-code:py-1 prose-code:rounded-lg prose-code:font-bold
-            prose-strong:text-white prose-strong:font-black
-            prose-blockquote:border-l-[var(--color-brand-blue)] prose-blockquote:bg-[var(--color-bg-panel)] prose-blockquote:p-8 prose-blockquote:not-italic prose-blockquote:text-[var(--color-text-main)] prose-blockquote:rounded-r-2xl
-            prose-table:border-collapse prose-table:w-full prose-table:my-12
-            prose-th:bg-[var(--color-bg-panel)] prose-th:p-4 prose-th:text-[var(--color-brand-blue)] prose-th:border prose-th:border-[var(--color-border-dark)]
-            prose-td:p-4 prose-td:border prose-td:border-[var(--color-border-dark)]
+            prose-code:text-[var(--color-brand-green)] prose-code:bg-[#0f1318] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
+            prose-strong:text-white prose-strong:font-bold
+            prose-table:border-collapse prose-table:w-full prose-table:my-8
+            prose-th:bg-[#111827] prose-th:p-4 prose-th:text-[var(--color-brand-blue)] prose-th:border prose-th:border-[var(--color-border-dark)] prose-th:text-sm prose-th:uppercase prose-th:tracking-wide
+            prose-td:p-4 prose-td:border prose-td:border-[var(--color-border-dark)] prose-td:text-sm
+            prose-tr:even:bg-[#0d1117]
+            prose-hr:border-none
           ">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
               {cachedMarkdown}
             </ReactMarkdown>
+          </div>
 
             <div className="mt-24 glass-panel p-12 rounded-[2rem] glow-blue relative overflow-hidden border border-[var(--color-brand-blue)]/50 shadow-[0_0_40px_rgba(0,229,255,0.1)]">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-brand-blue)] rounded-full blur-[120px] opacity-20 transform translate-x-20 -translate-y-20 pointer-events-none"></div>

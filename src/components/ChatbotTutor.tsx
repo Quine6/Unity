@@ -78,7 +78,7 @@ export default function ChatbotTutor({ progress, currentTopic, onUnlockNext }: C
   };
 
   return (
-    <div className="w-96 h-screen bg-[var(--color-bg-panel)] flex flex-col border-l border-[var(--color-border-dark)] shadow-xl relative z-20">
+    <div className="w-96 h-screen bg-[var(--color-bg-panel)] flex flex-col shadow-[-8px_0_32px_rgba(0,0,0,0.6)] relative z-20">
       <div className="p-5 border-b border-[var(--color-border-dark)] bg-[#111418] flex items-center gap-3">
         <div className="relative">
           <div className="w-10 h-10 rounded-full bg-[var(--color-brand-blue-dim)] border border-[var(--color-brand-blue)] flex items-center justify-center glow-blue">

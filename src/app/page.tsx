@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MessageSquare, X } from "lucide-react";
 import { useProgress } from "../hooks/useProgress";
 import OnboardingModal from "../components/OnboardingModal";
 import Sidebar from "../components/Sidebar";
@@ -10,6 +11,7 @@ import NetflixSplash from "../components/NetflixSplash";
 
 export default function Page() {
   const [showSplash, setShowSplash] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { 
     appState, 
     progress, 
@@ -55,7 +57,7 @@ export default function Page() {
     ?.submodules.find((s) => s.id === progress.currentSubmoduleId)?.title || "Lección";
 
   return (
-    <main className="flex h-screen w-full overflow-hidden bg-[var(--color-bg-dark)] text-white dark font-sans">
+    <main className="flex h-screen w-full overflow-hidden bg-[var(--color-bg-dark)] text-white dark font-sans relative">
       <Sidebar 
         progress={progress} 
         onSelectSubmodule={(modId, subId) => {
@@ -71,11 +73,40 @@ export default function Page() {
         progress={progress}
         onCacheLesson={cacheLesson}
       />
-      <ChatbotTutor 
-        progress={progress}
-        currentTopic={currentTopicName}
-        onUnlockNext={completeCurrentAndAdvance}
-      />
+
+      {/* Floating toggle button — visible when chat is closed */}
+      {!isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          title="Abrir Mentor Senior"
+          className="fixed bottom-8 right-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-[var(--color-brand-green)] hover:bg-[#00e65c] text-black font-extrabold text-sm shadow-[0_0_24px_rgba(0,255,102,0.4)] hover:shadow-[0_0_36px_rgba(0,255,102,0.6)] transition-all duration-200 hover:scale-105"
+        >
+          <MessageSquare className="w-4 h-4 fill-black" />
+          Mentor Senior
+        </button>
+      )}
+
+      {/* Chat panel — slides in from the right */}
+      <div
+        className={`fixed top-0 right-0 h-full z-40 transition-transform duration-300 ease-in-out ${
+          isChatOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Close button */}
+        <button
+          onClick={() => setIsChatOpen(false)}
+          title="Cerrar chat"
+          className="absolute top-4 left-0 -translate-x-full z-10 flex items-center gap-1.5 px-3 py-2 rounded-l-xl bg-[#111418] border border-r-0 border-[var(--color-border-dark)] text-[var(--color-text-muted)] hover:text-white text-xs font-medium transition-colors"
+        >
+          <X className="w-3.5 h-3.5" />
+          Cerrar
+        </button>
+        <ChatbotTutor 
+          progress={progress}
+          currentTopic={currentTopicName}
+          onUnlockNext={completeCurrentAndAdvance}
+        />
+      </div>
     </main>
   );
 }
