@@ -19,6 +19,7 @@ export const courseData: Module[] = [
       { id: "01-03", title: "Instalación de Visual Studio Community" },
       { id: "01-04", title: "Otros IDE" },
       { id: "01-05", title: "Interfaz de Unity" },
+      { id: "01-06", title: "Control de Versiones: Introducción a Git y GitHub (Tu seguro de vida contra errores)" },
     ],
   },
   {
@@ -26,7 +27,7 @@ export const courseData: Module[] = [
     title: "BASES DE PROGRAMACIÓN",
     submodules: [
       { id: "02-01", title: "Variables/Propiedades primitivas" },
-      { id: "02-02", title: "Comentarios" },
+      { id: "02-02", title: "Clean Code junto a comentarios (Cómo escribir código que otros entiendan)" },
       { id: "02-03", title: "Operaciones" },
       { id: "02-04", title: "Conversiones" },
       { id: "02-05", title: "Condicionales" },
@@ -70,6 +71,7 @@ export const courseData: Module[] = [
       { id: "04-01", title: "Idea" },
       { id: "04-02", title: "Viabilidad" },
       { id: "04-03", title: "Inicio del proyecto" },
+      { id: "04-04", title: "Arquitectura de Datos: Introducción a Scriptable Objects (Para crear ítems, armas o stats fácilmente)." },
     ],
   },
   {
@@ -182,6 +184,7 @@ export const courseData: Module[] = [
       { id: "13-07", title: "Modo Debug" },
       { id: "13-08", title: "Errores comunes" },
       { id: "13-09", title: "Límites del mapa" },
+      { id: "13-10", title: "Game Feel (Zumo de Juego): Partículas, Camera Shake y efectos de impacto" },
     ],
   },
   {
