@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const systemInstruction = `
       Eres el director y "MENTOR SENIOR" de Nexus Game Lab. 
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       - Enfoque Pedagógico: Elabora el contenido de la materia de manera muy PRÁCTICA. No dejes de lado la teoría importante, pero asegúrate de que el alumno vea siempre la aplicación directa. Sé especialmente práctico y visual cuando el usuario tenga menos de 15 años.
       - Avance Atómico: Explica conceptos detalladamente y no pases de tema. Tu tarea actual es evaluar lo que el usuario envía para este TEMA ACTUAL.
       - "Strictness": Sé implacable con errores que rompan el juego o malas prácticas extremas.
+      - VISIÓN: Si el alumno te envía una imagen o captura de pantalla, analízala con cuidado. Puede ser un error de Unity, su código o el diseño de su escena. Responde basándote en lo que ves.
       
       ESTRUCTURA DE EJERCICIOS — MUY IMPORTANTE:
       Cada lección de Nexus Game Lab termina con 3 ejercicios prácticos graduados:
@@ -74,7 +75,15 @@ export async function POST(req: Request) {
       },
     });
 
-    const result = await chatSession.sendMessage(systemInstruction + "\\n\\nMENSAJE DEL ALUMNO: " + message);
+    const parts: any[] = [{ text: systemInstruction + "\n\nMENSAJE DEL ALUMNO: " + message }];
+    
+    if (body.image) {
+      const mimeType = body.image.split(';')[0].split(':')[1];
+      const data = body.image.split(',')[1];
+      parts.push({ inlineData: { mimeType, data } });
+    }
+
+    const result = await chatSession.sendMessage(parts);
     const rawText = result.response.text();
     
     const isCorrectAndUnlock = rawText.includes("[UNLOCKED]");
