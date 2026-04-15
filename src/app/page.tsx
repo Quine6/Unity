@@ -22,6 +22,7 @@ export default function Page() {
     loginWithSecretCode,
     switchProfile,
     deleteProfile,
+    updateAvatar,
     cacheLesson,
     courseData 
   } = useProgress();
@@ -68,6 +69,7 @@ export default function Page() {
           }
         }}
         onLogout={() => switchProfile(null)}
+        onUpdateAvatar={updateAvatar}
       />
       <MainContent 
         currentModuleId={progress.currentModuleId} 

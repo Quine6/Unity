@@ -13,6 +13,7 @@ export interface UserProgress {
   currentSubmoduleId: string;
   completedSubmodules: string[];
   lessonsCache: Record<string, string>;
+  avatar?: string;
 }
 
 export interface AppState {
@@ -180,6 +181,14 @@ export function useProgress() {
       activeProfileId: appState.activeProfileId === id ? null : appState.activeProfileId
     });
   };
+    
+  const updateAvatar = (avatarDataUrl: string) => {
+    if (!activeProfile) return;
+    saveProgress({
+      ...activeProfile,
+      avatar: avatarDataUrl
+    });
+  };
 
   const cacheLesson = (submoduleId: string, markdownContent: string) => {
     if (!activeProfile) return;
@@ -237,6 +246,7 @@ export function useProgress() {
     loginWithSecretCode,
     switchProfile,
     deleteProfile,
+    updateAvatar,
     cacheLesson,
     courseData
   };

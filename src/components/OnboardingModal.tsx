@@ -95,7 +95,11 @@ export default function OnboardingModal({ profiles, onSelectProfile, onCreatePro
                     onClick={() => onSelectProfile(profile.id)}
                     className="w-24 h-24 rounded-2xl bg-[#0f1318] border border-[var(--color-border-dark)] group-hover:border-[var(--color-brand-blue)] group-hover:glow-blue flex items-center justify-center transition-all overflow-hidden relative shadow-lg"
                   >
-                    <User className="w-10 h-10 text-[var(--color-text-muted)] group-hover:text-[var(--color-brand-blue)] transition-colors" />
+                    {profile.avatar ? (
+                      <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-10 h-10 text-[var(--color-text-muted)] group-hover:text-[var(--color-brand-blue)] transition-colors" />
+                    )}
                   </button>
                   <div className="mt-3 font-bold text-white group-hover:text-[var(--color-brand-blue)] transition-colors">{profile.name}</div>
                   <div className="text-xs text-[var(--color-text-muted)] font-mono opacity-60">{profile.id}</div>

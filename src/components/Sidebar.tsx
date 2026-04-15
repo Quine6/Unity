@@ -2,19 +2,31 @@
 
 import { courseData } from "../data/courseContent";
 import { UserProgress } from "../hooks/useProgress";
-import { Lock, Unlock, CheckCircle } from "lucide-react";
+import { Lock, Unlock, CheckCircle, User, Camera } from "lucide-react";
 
 interface SidebarProps {
   progress: UserProgress;
   onSelectSubmodule: (modId: string, subId: string) => void;
   onLogout: () => void;
+  onUpdateAvatar: (dataUrl: string) => void;
 }
 
-export default function Sidebar({ progress, onSelectSubmodule, onLogout }: SidebarProps) {
+export default function Sidebar({ progress, onSelectSubmodule, onLogout, onUpdateAvatar }: SidebarProps) {
   // A helper function to determine if a submodule is completed, current, or locked.
   // Assuming linear progression, a submodule is unlocked if it's completed or is the current one.
   const isUnlocked = (subId: string) => {
     return progress.completedSubmodules.includes(subId) || progress.currentSubmoduleId === subId;
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdateAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const isCompleted = (subId: string) => progress.completedSubmodules.includes(subId);
@@ -39,14 +51,29 @@ export default function Sidebar({ progress, onSelectSubmodule, onLogout }: Sideb
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
-            <div className="flex justify-between text-[8px] opacity-60 italic">
+            <div className="flex justify-between text-[8px] opacity-60 italic mb-1">
               <span>{progress.name}</span>
               <span>{progress.completedSubmodules.length} / {totalTopics} temas</span>
             </div>
           </div>
-          <button onClick={onLogout} className="text-left w-max text-[var(--color-text-muted)] hover:text-white underline text-[10px] mt-2 transition-colors opacity-40 hover:opacity-100">
-            Cerrar Sesión
-          </button>
+          <div className="flex items-center gap-3">
+             <div className="relative group/avatar">
+                <div className="w-10 h-10 rounded-full bg-[#0f1318] border border-[var(--color-border-dark)] overflow-hidden flex items-center justify-center shrink-0 shadow-inner group-hover/avatar:border-[var(--color-brand-blue)] transition-colors">
+                   {progress.avatar ? (
+                     <img src={progress.avatar} alt={progress.name} className="w-full h-full object-cover" />
+                   ) : (
+                     <User className="w-5 h-5 text-[var(--color-text-muted)]" />
+                   )}
+                </div>
+                <label className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover/avatar:opacity-100 cursor-pointer rounded-full transition-opacity">
+                  <Camera className="w-4 h-4 text-white" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                </label>
+             </div>
+             <button onClick={onLogout} className="text-left w-max text-[var(--color-text-muted)] hover:text-white underline text-[10px] transition-colors opacity-40 hover:opacity-100">
+               Cerrar Sesión
+             </button>
+          </div>
         </div>
       </div>
       
