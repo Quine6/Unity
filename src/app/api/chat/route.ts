@@ -19,8 +19,6 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-
     const systemInstruction = `
       Eres el director y "MENTOR SENIOR" de Nexus Game Lab. 
       Nexus Game Lab es un laboratorio de desarrollo de videojuegos de élite.
@@ -57,6 +55,11 @@ export async function POST(req: Request) {
       Responde SIEMPRE en Español, utilizando formato Markdown.
     `;
 
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash-lite",
+      systemInstruction: systemInstruction 
+    });
+
     let cleanHistory = history.map((msg: any) => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: msg.parts
@@ -75,7 +78,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const parts: any[] = [{ text: systemInstruction + "\n\nMENSAJE DEL ALUMNO: " + message }];
+    const parts: any[] = [{ text: message }];
     
     if (body.image) {
       const mimeType = body.image.split(';')[0].split(':')[1];
