@@ -6,9 +6,12 @@ import remarkGfm from "remark-gfm";
 import { UserProgress } from "../hooks/useProgress";
 import { Send, Loader2, User, Image as ImageIcon, X, Paperclip } from "lucide-react";
 
+import { Submodule } from "../data/courseContent";
+
 interface ChatbotTutorProps {
   progress: UserProgress;
   currentTopic: string;
+  currentSubmodule?: Submodule;
   onUnlockNext: () => void;
 }
 
@@ -18,11 +21,11 @@ interface Message {
   image?: string; // Base64 data URL
 }
 
-export default function ChatbotTutor({ progress, currentTopic, onUnlockNext }: ChatbotTutorProps) {
+export default function ChatbotTutor({ progress, currentTopic, currentSubmodule, onUnlockNext }: ChatbotTutorProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "model",
-      content: `¡Hola ${progress.name}! Soy tu Mentor Senior en Nexus Game Lab. Actualmente estamos en **${currentTopic}**. ¿Estás listo para el reto? Acuérdate de que si algo no está claro, puedes preguntarme. ¡A programar con estilo! 🚀`,
+      content: `¡Hola ${progress.name}! Soy tu Mentor Senior en Nexus Game Lab. Tu misión activa en Godot 4 es **${currentTopic}**. ¿Cómo va tu proyecto? Pregúntame cualquier duda o enséñame tu pantalla. ¡A crear juegos en Godot! 🚀`,
     },
   ]);
   const [input, setInput] = useState("");
@@ -77,6 +80,7 @@ export default function ChatbotTutor({ progress, currentTopic, onUnlockNext }: C
           image: userImage,
           progress: progress,
           currentTopic,
+          currentSubmodule,
           history: messages.map(m => ({ 
             role: m.role, 
             parts: m.image 
@@ -93,6 +97,7 @@ export default function ChatbotTutor({ progress, currentTopic, onUnlockNext }: C
       
       setMessages((prev) => [...prev, { role: "model", content: data.text }]);
       
+      // Bug 3 fix: case-insensitive detection of unlock marker
       if (data.isCorrectAndUnlock) {
         onUnlockNext();
       }
@@ -164,6 +169,18 @@ export default function ChatbotTutor({ progress, currentTopic, onUnlockNext }: C
           </div>
         )}
         <div ref={messagesEndRef} />
+      </div>
+
+      <div className="p-3 border-t border-[var(--color-border-dark)] bg-[#0d1014]">
+        <button
+          onClick={() => {
+            onUnlockNext();
+            setMessages(prev => [...prev, { role: "model", content: "🎉 **¡Misión completada!** Has avanzado al siguiente paso. ¡Sigue así, crack! 🚀" }]);
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[var(--color-brand-green)]/10 border border-[var(--color-brand-green)]/30 text-[var(--color-brand-green)] text-xs font-extrabold uppercase tracking-wider hover:bg-[var(--color-brand-green)] hover:text-black transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          ✅ Misión Completada — Siguiente Paso
+        </button>
       </div>
 
       <div className="p-4 bg-[var(--color-bg-dark)] border-t border-[var(--color-border-dark)]">

@@ -1,72 +1,71 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// We use the edge runtime for faster streaming (though we are returning JSON for simplicity right now)
 export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { message, progress, currentTopic, history } = body;
+    const { message, progress, currentTopic, currentSubmodule, history } = body;
 
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
       return NextResponse.json(
-        { text: "Error: No se ha configurado la API Key de Gemini en el servidor. Por favor, añádela al archivo .env.local como GEMINI_API_KEY, el usuario debe configurarla primero.", isCorrectAndUnlock: false },
+        { text: "Error: No se ha configurado la API Key de Gemini en el servidor. Por favor, añádela a las variables de entorno.", isCorrectAndUnlock: false },
         { status: 500 }
       );
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+
+    const startFormatted = currentSubmodule?.startTime !== undefined ? `${Math.floor(currentSubmodule.startTime / 60)}:${String(currentSubmodule.startTime % 60).padStart(2, '0')}` : "00:00";
+    const endFormatted = currentSubmodule?.endTime !== undefined ? `${Math.floor(currentSubmodule.endTime / 60)}:${String(currentSubmodule.endTime % 60).padStart(2, '0')}` : "fin";
+
     const systemInstruction = `
-      Eres el director y "MENTOR SENIOR" de Nexus Game Lab. 
-      Nexus Game Lab es un laboratorio de desarrollo de videojuegos de élite.
-      INFORMACIÓN DEL ALUMNO:
-      Nombre: ${progress?.name}
-      Edad: ${progress?.age}
-      TEMA ACTUAL: ${currentTopic}
-      
-      PERSONALIDAD DEL TUTOR:
-      - Extremadamente motivador y entusiasta. Usa exclamaciones, celebra los avances con frases como "¡Increíble!", "¡Eres un crack!", "¡Eso es programar con estilo!".
-      - Paciente pero estricto. Si el código está mal o es ineficiente, debes explicar el "por qué" de forma cercana pero SIN DEJARLE PASAR hasta que lo corrija.
-      - Lenguaje: Usa un tono muy cercano. ¡ADAPTA tu lenguaje a la edad del alumno! Si tiene menos de 14 años, usa ejemplos más visuales, anécdotas de videojuegos famosos y analogías muy sencillas. Si es mayor, añade más rigor técnico y háblale como a un junior developer en tu equipo.
-      - Enfoque Pedagógico: Elabora el contenido de la materia de manera muy PRÁCTICA. No dejes de lado la teoría importante, pero asegúrate de que el alumno vea siempre la aplicación directa. Sé especialmente práctico y visual cuando el usuario tenga menos de 15 años.
-      - Avance Atómico: Explica conceptos detalladamente y no pases de tema. Tu tarea actual es evaluar lo que el usuario envía para este TEMA ACTUAL.
-      - "Strictness": Sé implacable con errores que rompan el juego o malas prácticas extremas.
-      - VISIÓN: Si el alumno te envía una imagen o captura de pantalla, analízala con cuidado. Puede ser un error de Unity, su código o el diseño de su escena. Responde basándote en lo que ves.
-      
-      ESTRUCTURA DE EJERCICIOS — MUY IMPORTANTE:
-      Cada lección de Nexus Game Lab termina con 3 ejercicios prácticos graduados:
-        🟢 Ejercicio 1 — Guiado: el alumno sigue pasos claros con tu ayuda.
-        🟡 Ejercicio 2 — Autónomo: el alumno lo resuelve solo, tú revisas el resultado.
-        🔴 Ejercicio 3 — Reto Avanzado: desafío extra para ir más allá.
+Eres el MENTOR SENIOR de desarrollo de videojuegos en NEXUS GAME LAB.
+Tu alumno es ${progress?.name || "Unai"} (${progress?.age || 12} años).
 
-      TU MISIÓN EN EL CHAT ES GUIAR AL ALUMNO A TRAVÉS DE ESTOS 3 EJERCICIOS:
-      1. Si el alumno abre el chat sin haber intentado nada, salúdale con entusiasmo y recuérdale que tiene 3 ejercicios en la lección. Pregúntale por cuál va a empezar y si tiene alguna duda antes de empezar el Ejercicio 1.
-      2. Cuando el alumno muestre su intento (código, descripción, captura), revísalo en detalle:
-         - Si está bien: Celébralo y anímalo a pasar al siguiente ejercicio.
-         - Si está mal o incompleto: Explica el error de forma cercana, da una pista y pide que lo reintente. NO le des la solución directamente, guíale.
-      3. Una vez el alumno haya superado los Ejercicios 1 y 2, puedes considerar que ha dominado el tema. Si ha hecho también el Reto Avanzado (Ej. 3), ¡celébralo con mucha energía!
+PASO O MISIÓN ACTIVA EN GODOT 4:
+- Título del paso: "${currentSubmodule?.title || currentTopic}"
+- Descripción del fragmento de vídeo: "${currentSubmodule?.description || ""}"
+- Acción práctica a realizar: "${currentSubmodule?.actionObjective || ""}"
+- Condición de victoria: "${currentSubmodule?.victoryCondition || ""}"
+- Minutos del vídeo YouTube: de ${startFormatted} a ${endFormatted}.
 
-      FUNCIONAMIENTO DE ESTE CHAT:
-      IMPORTANTÍSIMO: Solo debes incluir EXACTAMENTE la frase "[UNLOCKED]" al final de tu respuesta cuando el alumno haya completado satisfactoriamente AL MENOS los ejercicios 1 y 2 (el Reto Avanzado es opcional). El sistema detectará esto para desbloquear el siguiente módulo. Si el alumno aún no ha completado ambos ejercicios, NO incluyas "[UNLOCKED]".
+🔴 REGLA ABSOLUTA DE SINCRONIZACIÓN Y NINGÚN ADELANTO (VIOLACIÓN STRICTAMENTE PROHIBIDA):
+1. NUNCA le pidas al alumno (${progress?.name || "Unai"}) que realice tareas, cree nodos o programe scripts de submódulos o misiones posteriores.
+2. Tu orientación DEBE responder ÚNICA Y EXCLUSIVAMENTE a lo que se enseña en este fragmento de vídeo exacto (${startFormatted} - ${endFormatted}) y paso actual.
+3. Si el alumno tiene dudas o errores, tu respuesta debe limitarse a resolver la anomalía en ESTE paso concreto de Godot 4.
 
-      Responde SIEMPRE en Español, utilizando formato Markdown.
-    `;
+FILOSOFÍA Y ESCALERA DE PISTAS:
+1. Tono: Entusiasta, gamer, respetuoso, motivador y cercano.
+2. ESCALERA DE PISTAS (REGLA DE ORO): Nunca le des el código completo a la primera. Sigue esta escalera:
+   • Nivel 1: Pregunta breve de observación ("¿Tu nodo tiene asignada la propiedad correcta en el Inspector?").
+   • Nivel 2: Pista concreta sobre dónde mirar en el editor de Godot 4 (Inspector, Árbol de Nodos, FileSystem).
+   • Nivel 3: Indicación del fragmento de vídeo exacto (${startFormatted} a ${endFormatted}).
+   • Nivel 4: Ejemplo parcial en GDScript o configuración de nodos.
+   • Nivel 5: Solución explicada paso a paso si tras intentar sigue atascado.
+3. Errores como Descubrimientos: NUNCA digas que ha fallado. Usa expresiones como "¡Has encontrado un bug!", "Vamos a corregir esa anomalía de código".
+4. Lectura visual de imágenes: Si te envía una captura de pantalla de Godot 4 o su código, analízala al detalle y dile exactamente qué nodo, propiedad o línea de GDScript revisar.
+
+SISTEMA DE DESBLOQUEO:
+Incluye EXACTAMENTE la marca "[UNLOCKED]" al final de tu mensaje solo cuando ${progress?.name || "Unai"} haya demostrado haber completado la misión en Godot 4 o solucionado su duda práctica.
+
+Responde SIEMPRE en Español, utilizando formato Markdown impecable.
+`;
 
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash-lite",
       systemInstruction: systemInstruction 
     });
 
-    let cleanHistory = history.map((msg: any) => ({
+    let cleanHistory = (history || []).map((msg: any) => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: msg.parts
     }));
 
-    // Gemini API STRICTLY requires the history to start with a 'user' message, 
-    // never 'model'. Our frontend starts with a hardcoded model greeting.
+    // Gemini API requires history to start with 'user'
     if (cleanHistory.length > 0 && cleanHistory[0].role === 'model') {
       cleanHistory.shift();
     }
@@ -89,9 +88,8 @@ export async function POST(req: Request) {
     const result = await chatSession.sendMessage(parts);
     const rawText = result.response.text();
     
-    const isCorrectAndUnlock = rawText.includes("[UNLOCKED]");
-    // Limpiamos el tag visualmente para no mostrarlo al usuario
-    const cleanText = rawText.replace(/\\[UNLOCKED\\]/g, "").trim();
+    const isCorrectAndUnlock = /\[UNLOCKED\]/i.test(rawText);
+    const cleanText = rawText.replace(/\[UNLOCKED\]/gi, "").trim();
 
     return NextResponse.json({
       text: cleanText,
@@ -100,7 +98,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     return NextResponse.json(
-      { text: "Hubo un error interno al conectar con mi IA cerebral. Intenta de nuevo más tarde. Detalles: " + error.message, isCorrectAndUnlock: false },
+      { text: "Hubo un error de conexión con la IA. Por favor reintenta en unos instantes. Detalles: " + error.message, isCorrectAndUnlock: false },
       { status: 500 }
     );
   }
